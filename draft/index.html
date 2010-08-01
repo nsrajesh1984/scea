@@ -4,7 +4,7 @@
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="stylesheet" type="text/css" href="css/resume.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
 <script type="text/javascript" src="script/jquery-1.4.2.min.js"> </script>
 <script>
 $(function(){
@@ -21,12 +21,27 @@ $(function(){
 
 <body>
 <h1 id="title" align="center"><strong>Software Architecture Document</strong></h1>
-<br>
-<br>
-
+<center>
+<table width="195" border="0">
+    <tr>
+        <td width="103">First Name:</td>
+        <td width="82"><strong>Dapeng</strong></td>
+    </tr>
+    <tr>
+        <td>Last Name:</td>
+        <td><strong>Hu</strong></td>
+    </tr>
+    <tr>
+        <td height="30"> PROMETRIC ID:</td>
+        <td> <strong>sr6414493</strong></td>
+    </tr>
+</table>
+</center>
+<p><br>
+</p>
 <h2><strong>1.  <a name="Introduction">Introduction</a></strong></h2>
 
-<p >This  document provides a high level overview of the  technical architecture  for the Big Smokes Cigar shop. In order to join the rapid growth of cigar industry, the Big Smokes Cigar shop has launched a project for building an internet retail site to extend their market reach throughout the world. I was appointed as the lead architect, mentor and technical lead on their retail web site.</p>
+<p >This  document provides a high level overview of the  technical architecture  for the Big Smokes Cigar shop. In order to join the rapid growth of cigar industry, the Big Smokes Cigar shop has launched a project for building an Internet retail site to extend their market reach throughout the world. I was appointed as the lead architect, mentor and technical lead on their retail web site.</p>
 <p >The in-house business analysts and subject matter experts has provided the following requirements description, domain model and use cases   as a starting point:</p>
 <p ><center><a href="Program.htm" target="_blank">original requirement and use cases</a></center></p>
 <p >I intended to take it as input to architecting, development and ongoing management process that will result in a turnkey or complete solution.  </p>
@@ -34,23 +49,27 @@ $(function(){
 <p >In this  document, we present the goals of the architecture,  design criteria, and main components   based on JaveEE best practices to achieve the requirements and service level agreement below. </p>
 <ul>
     <li>Performance: 90% of all transactions to be under 5 seconds and no transaction exceeding 10 seconds. This is mandatory for Big Smokes to be an industry leader in site response.</li>
-    <li> Scalability: up to 200 concurrent users, </li>
+    <li> Scalability: up to 200 concurrent users.</li>
     <li> Availability: over 99.99 percent uptime during core working hours.</li>
-    <li> Security: 128-bit encryption at a minimum</li>
+    <li> Security: 128-bit encryption at a minimum.</li>
+    <li>Internationalization: support multiple languages.</li>
 </ul>
 <p >This document has 7 sections which   depict different aspects of the system. It is intended to capture and convey  the significant architectural decisions which have been made on the system.</p>
 <ul>
     <li>Section 2 describe the enhanced domain models and use cases based on the given requirement. </li>
     <li>Section 3 discuss the technical risks and   design strategy. </li>
-    <li>Section 4 provide overview of architecture with deployment and component diagrams.</li>
-    <li>Section 5 provide sequence or collaboration diagrams for each Use case. </li>
-    <li>Section 6  provide class diagrams. </li>
+    <li>Section 4 discuss  modules based on functionality. </li>
+    <li>Section 5 provide overview of architecture with deployment and component diagrams.</li>
+    <li>Section 6  provide class diagrams on presentation tier, business tier and resource tier. </li>
+    <li>Section 7 provide primary sequence  diagram for each use case. </li>
 </ul>
 <p>&nbsp;</p>
 <hr>
 <p>&nbsp;</p>
 <h2><strong>2.  <a name="Architectural Goals and Constraints">Use-Case and Domain Model</a></strong></h2>
 
+<p>This section discusses requirement and business model of this project from the point of usecase's  view. Some assumption and changes are made based on the given requirement. </p>
+<p>The retail web site of the Big Smoke Cigar Shop is a typical e-commerce site. The customer selects    cigars from a catalog, places them in a shopping cart, and, when ready, purchases    the shopping cart contents. Prior to a purchase, the  application displays the    order: the selected items, quantity and price for each item, and the total cost including shipping fee. The    customer can revise or update the order. To complete the purchase, the customer provides a shipping address and a credit card number.</p>
 <p>I've made changes in the given domain model. The goal of the <a href="image/New Domain Model.gif" target="_blank">changed logical Domain Model Diagram</a>  is the below:</p>
 <ul>
     <li>Add  visibility to Customer attributes: Billing Address, Shipping Address and Credit Card.</li>
@@ -58,35 +77,44 @@ $(function(){
     <li>Add Shopping Cart as a top level domain model.</li>
 </ul>
 <p> I feel these enhancements actually  offer better component responsibility separation and better presentation of first-class domain components. </p>
-<p align="left"><a href="image/Primary Use Cases.gif" target="_blank">New Use Cases Diagram</a> is also changed based on the given requirement with addition of two new use cases: Create Profile and  Purchase Order Fulfillment. Moreover, some assumption  are made to simplify design and implementation. The detail information of each use case is listed below.</p>
+<p align="left"><a href="image/Primary Use Cases.gif" target="_blank">New Use Cases Diagram</a> is also provides based on the given use cases. The main changes are:</p>
+<ul>
+    <li>Two new use cases are added: Create Profile and  Purchase Order Fulfillment.</li>
+    <li>The check out use case is enhanced. It includes the Check Availability use case to enhance the business process.</li>
+    <li>Moreover, some assumption  are made for each use case to simplify design and implementation. </li>
+</ul>
+
+<p align="left">The detail description of each use case is listed below.</p>
 <p align="left">&nbsp;</p>
 <h3 align="left"><strong>2.1  <a name="Architecturally-Significant Use Cases">Use case: Create   Profile</a></strong></h3>
 <p><strong>Brief description</strong><br>
-    The Create Profile use case allows user creates his or her profile  on Big Smoke’s retail web site. The profile includes the at least the following  information:
+    The Create Profile use case allows user creates his or her profile  on Big Smoke's retail web site. The profile includes the at least the following  information:
 <ul>
     <li>User name</li>
     <li>Password</li>
     <li>Billing address (optional)</li>
     <li>Shipping address (optional)</li>
     <li>Credit card (optional)</li>
+    <li>EMail address</li>
+    <li>Telephone number</li>
 </ul>
 <p><strong>Basic Flow</strong></p>
 <ol>
-    <li>Use decide to create a new account on the web site.</li>
+    <li>User decide to create a new account on the web site.</li>
     <li>System display a form to fill user's private information.</li>
     <li>Validate user's username, password and other information.</li>
-    <li>After the profile is successfully created, send a mail to notify custmer.</li>
 </ol>
 <p>&nbsp;</p>
 <h3><strong>2.2  <a name="Architecturally-Significant Use Cases">Use case: Search Catalog</a></strong></h3>
 <p><strong>Brief description</strong><br>
-The Search Catalog use case allows the customer to browse the  catalog of products available. <br>
-    </p>
+The Search Catalog use case allows the customer to browse the  catalog of products. Only those which are available for sale. <br>
+</p>
 <p><strong>Basic Flow </strong></p>
 <ol>
     <li>Customer selects a product  category. </li>
-    <li>System responds with a list  of products in the selected category. </li>
+    <li> System responds with a list of products in the selected category.</li>
     <li>Customer selects a product. </li>
+    <li>System execute Check Availability use case.</li>
     <li>System responds with the  product detail and availability of the product.</li>
 </ol>
 <h3>&nbsp;</h3>
@@ -94,20 +122,20 @@ The Search Catalog use case allows the customer to browse the  catalog of produc
 <p><strong>Brief Description </strong><br>
 The Add Product to Cart use case adds the specific product selected  to the customer's shopping cart.</p>
 <p><strong>Assumption</strong></p>
-<p>I assume custmer don't have to login when adding a product into cart.  If this  happen, a temporary  cart will be created. This temporary cart will not be persisted until after  successful login. Thus, in this case, the temporary cart will be discarded after the use session is destroyed.<br>
+<p>I assume customer don't have to login when adding a product into cart.  If this  happen, a temporary  cart will be created. This temporary cart will not be persisted until after  successful login. Thus, in this case, the temporary cart will be discarded after the use session is destroyed.<br>
 </p>
 <p><strong>Basic Flow </strong></p>
 <ol>
     <li> Customer selects a product  to add to the shopping cart. </li>
-    <li> System executes the Check  Availability use case. </li>
-    <li> System adds the product to  the shopping cart and displays the shopping cart to the customer. </li>
+    <li> System executes the Check  Availability use case.  If the product is not available for sale, an error message is displayed to customer.</li>
+    <li>System adds the product to  the shopping cart and displays the shopping cart to the customer. </li>
     <li> Customer modifies the number  of units to be purchased. </li>
     <li> System calculates a new  total amount and displays the updated page to the customer.</li>
 </ol>
 <p>&nbsp;</p>
 <h3><strong>2.4  <a name="Architecturally-Significant Use Cases">Use case: Check Availability</a></strong></h3>
 <p><strong>Brief Description&nbsp;</strong><br>
-The Check Availability use case checks the  inventory system to determine how many of a given product are available for  sale.&nbsp;</p>
+The Check Availability use case checks the  inventory system to determine   how many of a given product are available for sale.   &nbsp;</p>
 <p><strong>Basic Flow</strong></p>
 <ol>
     <li> System sends a request containing the product  ID to the inventory system.</li>
@@ -120,7 +148,7 @@ The Check Availability use case checks the  inventory system to determine how ma
 The Check Out use case allows the customer to  purchase the items they have placed in their shopping cart.&nbsp;<br>
 </p>
 <p><strong>Assumption</strong></p>
-<p>I assume custmer must login when he/she decide to check out. If not, customer will be redirected to login screen and routed back after successful login. If user don't create a profile yet, the Create Profile use case will be executed at first.</p>
+<p>I assume customer must login when he/she decide to check out. If not, customer will be redirected to login screen and routed back after successful login. If user don't create a profile yet, the Create Profile use case will be executed at first.</p>
 <p><strong>Basic Flow</strong>&nbsp;</p>
 <ol>
     <li> Customer selects check out.</li>
@@ -128,6 +156,7 @@ The Check Out use case allows the customer to  purchase the items they have plac
     <li> Customer modifies quantity and selects a  shipping method.</li>
     <li>System updates the  subtotal and provides a total amount with shipping costs.</li>
     <li>Customer selects the credit card type and  enters the number and expiration date.</li>
+    <li> System authorizes credit card payment. If the authorization pass successfully, system sends email confirmation and responds with a order number. If not, display an error message to customer on web page and allow customer correct credit card information.</li>
     <li>System run  Purchase  Order Fulfillment use case to process  the purchase order.</li>
 </ol>
 <p><strong>Alternative Flows</strong></p>
@@ -142,27 +171,16 @@ The Check Out use case allows the customer to  purchase the items they have plac
 <p>&nbsp;</p>
 <h3><strong>2.6  <a name="Architecturally-Significant Use Cases">Use case: Purchase Order Fulfillment</a></strong></h3>
 <p><strong>Brief Description</strong><br>
-Purchase Order Fulfillment use case process customers’ purchase order.</p>
+Purchase Order Fulfillment use case process customers' purchase order.</p>
 <p><strong>Assumption</strong><br>
-If avialable stock in warehouse is not enough to fulfill purchase order, due to some reason such as a massive order comes and clear all the stock, the system will notify the customer there isn't enough stock, and the delivery time is increased. Suppose  the manufacturer's production capacity is very strong and the lead time is short enough to make  customer satisfied with the postponed delivery.</p>
-<ul>
-    <li><strong><em>Suppose shipping comapny will call manufacturers to check availability of products.</em></strong></li>
-</ul>
+If available stock in warehouse is not enough to fulfill purchase order, due to some reason such as a massive order comes and clear all the stock, the system will call manufacture for more product  and postpone  the delivery time by a short period. Assume   the manufacturer's production capacity is very strong and this period is short enough, so as to  customer will not feel uncomfortable.</p>
 <p><strong>Basic Flow</strong></p>
 <ol>
-        <li>Sends  payment transaction to the Merchant Bank and waits for authorization. </li>
-        <li>Sends email  confirmation of successful payment to customers email address once credit  authorization is returned&nbsp; </li>
-        <li>Split the purchase order by manufactures and send sub-orders  to inventory system to reserve selected cigars and waits for confirmation. </li>
-        <li>Sends  shipping request to the selected shipping company. </li>
+        <li>Split the purchase order by manufactures and send sub-orders  to inventory system to fill order. Inventory system will reserve products according to quantity in purchase order. Then update the  number of available units of corresponding product.</li>
+        <li>Send shipping request to the specified shipping company. Inventory will send back sub-invoice after product is packed and shipped.</li>
+        <li>When all sub-invoices are collected, system will notify customer through email. </li>
     
 </ol>
-<p><strong>Alternative  Flow</strong></p>
-<ul>
-    <li>    <em>Credit Card  Authorization Fails</em><br>
-        Sends email  confirmation of failure to customers email address and the purchase order is  suspended. After  correcting the credit card, custmer can check out again and system will go on with basic flow.</li>
-    <li><em>Stock in warehouse isn't enough to fulfill the purchase order</em><br/>
-    Send email to  the customer saying that  the delivery time is increased. Inventory will send new order to manufacturer for more stock. When stock is ready, system goes on with basic flow.</li>
-</ul>
 <p>&nbsp;</p>
 <hr>
 <p>&nbsp;</p>
@@ -175,29 +193,24 @@ If avialable stock in warehouse is not enough to fulfill purchase order, due to 
     <li>Provide the Big Smokes Cigar shop with near term new sales from early deployment</li>
 </ul>
 <h3><strong>3.1  <a name="Use-Case View">Communication Technologies.</a></strong></h3>
-<p>While processing customer's purchase order, the system has to communicate and interact with different external entities and application, such as Merchant Bank, inventory system and shipping comapny. The problem is that those applicaitons support different communication technologies: JMS, Web Services, proprietary API.</p>
+<p>In this application, the system has to communicate and interact with different external entities and applications, such as Merchant Bank, inventory system and shipping company. But communication technology to some of these external applications isn't well defined or isn't standard in original requirement:</p>
 <ul>
     <li>Merchant Bank support internet transaction but the actual interface isn't specified.</li>
     <li>Existing Inventory: not specified</li>
-    <li>Inventory of Partner Manufacturers: Industry standard interface based on JMS</li>
-    <li>Freight Movers: Proprietary Java API </li>
-    <li>International Shipping: Web service through SOAP/HTTP</li>
+    <li>Freight Movers: Proprietary Java API</li>
 </ul>
-<p>In order to  achieve the greatest degree of interoperability and flexibility among all modules,  Enterprise Service Bus is used as service broker since it provide protocol transformation, addressing and routing capability. This architecture will help to decouple business logic of Purchase Order Fulfillment with communication technologies. The component diagram below illustrate the relationship between ESB and application units. <br>
-</p>
-<p><center><a href="image/Application Intergration with ESB.gif" target="_blank">Application Intergration through ESB</a></center></p>
-<p>Note: this diagram make the following assumption: </p>
+<p>This application make the following assumption: </p>
 <ul>
-    <li>The Purchase Order Fulfillment component of the Big Smoke Cigar Shop supports JMS.</li>
-    <li>The Merchant Bank supports Web Service, </li>
-    <li>The inventory system of the Big Smoke Cigar Shop supports the same industry standard based on JMS with other manufacturers.</li>
-    <li>The Freight Movers supports Web service through an adapter which convert its proprietory API to SOAP/HTTP.<br>
-        <br>
-    </li>
+    <li>The Merchant Bank use Web Service to handle internet transaction.<br/>
+        This assumption achieve the greatest degree of interoperability and flexibility with the service offerd by the Merchant Bank. </li>
+    <li>The inventory system of the Big Smoke Cigar Shop supports the same industry standard based on JMS with other manufacturers.<br/>
+        Since other partner manufactures   uses an industry standard interface based on the JMS. Hence we think this is a reasonable assumption.</li>
+    <li>A  resouce adpter based on JEE Connector architecture is developed for the Freight Movers  which converts its proprietory API and provides  secure, and transactional connection.</li>
 </ul>
+<p>&nbsp;</p>
 <h3><strong>3.2  <a name="Use-Case View">Checking Availability</a></strong></h3>
 <p>Since the Big Smokes Cigar shop also    sell cigars from other partner manufacturers, it is necessary to check the  availability of those cigar. Although all manufacturers support industry standard   interface based on JMS, it is not acceptable to send a synchronous call through internet and wait for responce  because system needs have high performance.</p>
-<p>The solution for this issue is applying proxy pattern:  add a broker in ESB  which periodically poll third-party inventory system using JMS.  The result will be  cached by the broker. When the Check Availibity use case is executed,  the system only need to send request against the broker which return back the availability information from its shared cache.  In this way, the network communication and responce time can be guranteed. This design is also illustrated in the diagram: <a href="image/Application Intergration with ESB.gif" target="_blank">Application Intergration through ESB</a><br>
+<p>The solution for this issue is adding a proxy in business tier which periodically send message to inventory system using JMS for checking availability.  The result is  cached by the proxy. When the Check Availibity use case is executed,  the system only need to call the proxy which return back the availability information from its shared cache.  In this way, the  responce time can be guranteed.<br>
     <br>
 </p>
 <h3><strong>3.3  <a name="Use-Case View">Domain Model of Cigar</a></strong></h3>
@@ -211,55 +224,218 @@ If avialable stock in warehouse is not enough to fulfill purchase order, due to 
 <p> This application save  user credentials in  database. Thus the JDBC realm is in this project. In the Web tier, a login screen is provide for Form-based auchentication method. The detail design on security is leaved to designer   based on the  technologies for authentication and authorization in Java EE.</p>
 <h3><strong>3.7  <a name="Use-Case View">Management and Administration</a></strong></h3>
 <p> Due to tight timeframe, no maintenance screens or support web tool is provide in this project. Many management tasks, such as changing  cigar price and description, will be a manual DBA operation using SQL  scripts directly against the database.</p>
-<h3><strong>3.8  <a name="Use-Case View">AJAX</a></strong> for Front End</h3>
-<p> For the sake of performance and user experience, the front end use AJAX to refresh product availability and update total fee of selected product.</p>
-<h3><strong></strong><strong>3.9  <a name="Use-Case View">Shared Cache of JPA</a></strong></h3>
-<p>&nbsp;</p>
+<h3><strong>3.8  <a name="Use-Case View">AJAX</a></strong> for Checking Availability and Credit Card Authorization.</h3>
+<p> In this application,  server transaction is required for update  availability and authorize credit card. Refreshing  full page  for these validation task would be a hassle. For the sake of performance and user experience, the front end use AJAX to update UI componet's status while checking availability and authorizing credit card. </p>
+<h3><strong>3.9  <a name="Use-Case View">Shared Cache of JPA</a></strong></h3>
+<p>All the instance of Cigar entity can be saved in shared cache provided by JPA, since they almost be static in the whole application scope. This machanism will save communication overhead to database, and hence improve performce.</p>
 <p><br>
 </p>
 <hr>
 <p>&nbsp;</p>
-<h2><strong>4.  <a name="Introduction">System Architecture</a></strong></h2>
+<h2><strong>4. Application Modules</strong></h2>
+<p>After walking through scenario of each use case, we can divide the application into modules based on functionality. This section identify the interface and responsibility of these modules. Next section will  assign them to different tiers and apply object oriented analysis.</p>
+<ul>
+    <li><em><strong>Customer Module:</strong></em> This module manages user account information such as the customer's name, EMail address, telephone number, credit card information.</li>
+    <li><strong><em>Catalog Module</em></strong>: This module maintains catalog information of all cigars. When customer attemp to search cigars through the retail site, this module accesses database and represents searching result.</li>
+    <li><em><strong> Shopping Cart Module:</strong></em> This module is responsible for persisting and managing  shopping cart which contains products selected by customer.</li>
+    <li><strong><em>Purchase Order  Module</em></strong>: After payment, this module manages the purchase order  process, includes setting shipping method, credit card authorization, order fulfillment, and  customer notification.</li>
+    <li><strong><em>Check Availability Module</em></strong>: This module works with the <strong><em>Inventory Module</em></strong> to check availability for the  cigars.</li>
+    <li><strong><em>Inventory Module</em></strong>: This module provides abstract API to other modules for encapsulating the  communication detail to external inventory system.</li>
+    <li><strong><em>Bank Module</em></strong>: This module provides abstract API to other modules for encapsulating the  communication detail to the Merchant Bank for credit card transaction.</li>
+    <li><em><strong>Shipping Module</strong></em>: This module provides abstract API to other modules for encapsulating the  communication detail to the   Freight Movers and International Shipping.</li>
+    <li><em><strong>Mail Module</strong></em>: This module provides API to send mail to customer </li>
+</ul>
+<p>Now that we have identified the logical modules in the application, the next step is to begin the process of object-oriented design, identifying units of business logic and data, and modeling each of them as a software object.</p>
+<p>&nbsp;</p>
+<hr>
+<p>&nbsp;</p>
+<h2><strong>5.  <a name="Introduction">System Architecture</a></strong></h2>
 This section provide high level overview of the architecture with delpoyment diagrams and components diagrams.
-<h3><strong>4.1  <a name="Use-Case View">Component Diagrams</a></strong></h3>
-<p> This apllication has two functional units: a retail web site that serves as a front end to the user and purchase order fulfillment center on the back end. The customer    browse cigars and places orders through the retail web site. When a customer completes an purchase order, the order will be sent to the order fulfillment center. </p>
-<p>The Web site follows the Model-View-Controller architecture. Its architecture also combines a number of the Java EE design patterns. The fulfillment center follows a process workflow architecture     based on the enterprise's business rules.</p>
-    <a href="image/System Component Package.gif" target="_blank">System Component Package Diagram</a><br/>
-    <a href="image/Servlet,JSP,Actions Components.gif" target="_blank">Servlet,JSP,Actions Component Diagram</a><br/>
-    <a href="image/Purchase Order WorkFlow Components.gif" target="_blank">Purchase Order WorkFlow Component Diagram</a><br/>
-    <a href="image/Besiness Delegate Components.gif" target="_blank">Besiness Delegate Component Diagram</a><br/>
-
-<h3><strong>4.2  <a name="Use-Case View">Deployment Diagrams</a></strong></h3>
-<p>The Two application server boxes are included in the architecture with clustering  services of HTTP session replication and JMS. This is crucial for improve scalability, performance and availability  of the enterprise application.</p>
-<p><a href="image/System Overview Diagram.gif" target="_blank">System overview deployment diagram</a></p>
-<p>Areas of possible change, alternative architecture or future improvement might be:</p>
+<h3><strong>5.1  <a name="Use-Case View">Deployment Diagrams</a></strong></h3>
+<p>For the sake of scalability and security,  this application has two deployment units: </p>
 <ul>
-    <li>clustered web tier for transparent single point of failure tolerance.  The current architecture includes two boxes and application servers in the web tier, but near term priorities haven't allowed the time to configure and test replicated HttpSession state across the replication channel between the two boxes and app servers.</li>
-    <li> clustered business logic tier for resiliency, added capacity and single point of failure tolerance</li>
-    <li> clustered persistence tier for resiliency, added capacity and single point of failure tolerance.</li>
+    <li>bigsmoke.ear: This archive is responsible for the front  retail web site.  The retail web site handle customer's online shopping process, such as displaying catalog, manage customer's shopping cart.<br>
+    </li>
+    <li> backend.ear: This archive is responsible for providing backend services for the front web site, such as order fulfillment process,   checking availability, mail service and credit card transcation.</li>
 </ul>
-<h2><strong>5.  <a name="Introduction">Sequence or Collaboration Diagrams</a></strong></h2>
-<p> The sequence diagrams associated with each use case are the following</p>
+<p> In the <a href="image/System Deployment Diagram.gif" target="_blank">System  deployment diagram</a>,  two application servers  are deployed for these two deployment units. the package bigsmoke.ear is deployed on the Front Side Server; the package backend.ear is deployed on the Backend Server. </p>
+<p>&nbsp;</p>
+<h3><strong>5.2  <a name="Use-Case View">Component Diagrams</a></strong>
+</h3>
+<p>In the <a href="image/System Components Diagram.gif" target="_blank">System Components Diagram</a><a href="image/System Deployment Diagram.gif" target="_blank"></a>, all components are displayed for the two enterprise archives.
+</p>
+<p>The enterprise archive <em>bigsmoke.ear</em> includes the following modules:</p>
 <ul>
-    <li><a href="image/sequence/MVC Framework Diagram.gif" target="_blank">MVC Framework Diagram</a></li>
-    <li><a href="image/sequence/Login and Profile Sequence Diagram.gif" target="_blank">Login and Create Profile Sequence Diagram</a></li>
+    <li>bigsmoke.war: <br/>
+    This module contains JSP files,  servlets, script files and ManagedBeans for the web site. </li>
+    <li>catalog-ejb.jar: <br/>
+        This module provides entity classes for catalog and EJBs for searching cigars.</li>
+    <li>cart-ejb.jar: <br/>
+        This module provides entity classes for cart and EJBs for managing cart information.</li>
+    <li>customer-ejb.jar: <br/>
+        This module provides entity classes for profile and EJBs for managing customer's information.</li>
+    <li>shippingcost-ejb.jar:</li>
+    <li>This module:<br/> 
+    This module provides EJBs which are used to calculate shipping cost    based on quantity, address,  weight  and shipping method.</li>
+</ul>
+<p>The enterprise archive <em>backend.ear</em> includes the following modules:</p>
+<ul>
+    <li>checkAvailability-ejb.jar: <br/>
+        This module provides EJBs which acts as a proxy for checking availability.</li>
+    <li>pfc-ejb.jar: <br/>
+        This module provides EJBs which manages purchase order fulfillment process.</li>
+    <li>creditcard-ejb.jar: <br/>
+        This module provides EJBs which handles credit card transactions with external service of the Merchant Bank.</li>
+    <li>mail-ejb.jar: <br/>
+        This module provides mail service through stateless EJB.</li>
+    <li>shipping-ejb.jar: <br/>
+        This module provides EJB which acts as a delegate to shipping companies.</li>
+    <li>po-ejb.jar: <br/>
+        This module provides entity classes for purchase orders and invoices, and EJBs for managing them.</li>
+    <li>inventory-ejb.jar: <br/>
+        This module provides EJBs which acts as a delegate to inventory systems.</li>
+    <li>freightmover.rar: <br/>
+        This  is a resource adapter module  which implements the Connector architecture for the Freight Mover company.</li>
+</ul>
+<p>&nbsp;</p>
+<hr>
+<p>&nbsp;</p>
+<h2><strong>6. Class Diagrams</strong></h2>
+<p></p>
+<h3><strong>6.1. Presentation Tier</strong></h3>
+<p><strong>UI Screens</strong></p>
+<p>The web user interface of the retail site consists of a set of screens. A screen is composed of several components each contributing a part of contents. <a href="image/class/Screens Navigation Diagram.gif" target="_blank">Screens Navigation Diagram</a> displays all screens with their navigation rule between them.</p>
+<ul>
+    <li>Main Screen</li>
+</ul>
+<blockquote>
+    <p>The main screen is the home page of the Big Smoke Cigar Shop Web Site. This screen  includes a menu to allow user doing  actions below: <br> 
+    1. New Customer: create a new profile.<br>
+    2. Login: route to login screen <br>
+        3. Edit profile: allow user to edit his/her profile.(This action need user login)<br>
+        4. View cart: route to cart screen and display product items in user's cart.<br>
+    </p>
+<p>This screen also display the all product categoryies as a list. If user select a category which he/she is interested in, then route to the Product List screen to display all product items of that category.</p>
+</blockquote>
+<ul>
+    <li>Login Screen</li>
+</ul>
+<blockquote>
+    <p>This screen allows customer to  login.</p>
+</blockquote>
+<ul>
+    <li>Profile Screen</li>
+</ul>
+<blockquote>
+    <p>This screen is presented when user want to create a new profile or edit an existing profile.</p>
+</blockquote>
+<ul>
+    <li>Category Screen</li>
+</ul>
+<blockquote>
+    <p>This screen presents user with brief description and availability of  cigars of selected category. User can select one of cigar to display detailed information in the Cigar Detail Screen, or add it in shopping cart.</p>
+</blockquote>
+<ul>
+    <li>Cigar  Screen</li>
+</ul>
+<blockquote>
+    <p>This screen presents user with detail description and availability of selected cigars. User can select the cigar and add it in shopping cart.</p>
+</blockquote>
+<ul>
+    <li>Cart Screen</li>
+</ul>
+<blockquote>
+    <p>This screen presents user with all items in shopping cart. User can update the quantity of each cart item, and choose checking out when user decide to pay them.</p>
+</blockquote>
+<ul>
+    <li>Purchase Order  Screen</li>
+</ul>
+<blockquote>
+    <p>This screen presents user with information of purchase order and allow user to update quantity of selected cigar, setting shipping method and entering credit card information.</p>
+</blockquote>
+<p><strong>JSF</strong></p>
+<p>JavaServer Faces is employed here as presentation technology, not only because it has a well defined Model-View-Controller architecture, but validator component is handy. In this application, both checking availability and credit card authorization require  server transaction. Requiring the user to do a 
+    full page refresh  for them would be a hassle. The Ajax validator component 
+    enables wrapping any JSF component with any JSF validator, and running just the validation 
+    part of the lifecycle on that specific component instance.</p>
+<p><a href="image/class/Presentation Tier Class Diagram.gif" target="_blank">Presentation Tier Class Diagram</a> displays managed beans and their related web pages.</p>
+<p>&nbsp;</p>
+<h3><strong>6.2. Business Tier</strong></h3>
+<p>The business tier includes EJBs, POJOs and entity classes which represent data model or  handle business logic. These classes work with Resource Tier classes to implement business logic, such as creating profile, searching catalog, adding product in cart, checking out, order fulfillment. <a href="image/class/Business Tier Class Diagram.gif" target="_blank">Business Tier Class Diagram</a> displays the these classes for each module below.</p>
+<p>        <strong>Customer Module:</strong></p>
+<ul>
+    <li>ProfileDAO: This class provides a uniform API  to persist, find, update  data objects of profile. </li>
+    <li>Profile: This is an entity class representing user account information, such as user name, email address, credit card and shipping address, etc.</li>
+</ul>
+<p><strong>Catalog Module</strong>:</p>
+<ul>
+    <li>CatalogDAO: This class is used to search cigars from database according to customer defined criteria.</li>
+    <li>Cigar: This is an entity class representing cigar information, such as name, category, price, description, manufacturer, etc.</li>
+    <li>Category: This is an entity class representing the category of cigars, such as Standard Cigar, Petite Cigar and Flavored Cigar.</li>
+</ul>
+<p><strong>Shopping Cart Module</strong>:</p>
+<ul>
+    <li>ShoppingCartFacade: As a business object, this class encapsulate business logic of shopping cart, such as calculating total amount, checking availability, </li>
+    <li>ShoppingCartDAO: This class provides a uniform API  to persist, find, update  data objects of a shopping cart.</li>
+    <li>ShoppingCart: This is an entity class representing shopping cart's information, such as selected items, total amount, status, shipping method, credit card. Each customer has a shopping cart.</li>
+    <li>CartItem: This is an entity class representing a selected cigar in shopping cart with quantity. </li>
+</ul>
+<p><strong>Purchase Order  Module</strong>:</p>
+<ul>
+    <li>POFulfillmentMDB: This is a message driven bean which listen the purcase order fulfillment queue. After credit card is authorized successfully, the purchase order will be sent to the purcase order fulfillment queue. The POFulfillmentMDB works with PurchaseOrderFacade to handle the process of fulfillment.</li>
+    <li>PurchaseOrderFacade: As a business object, this class encapsulates business logic about purchase order, such as calculating total cost, credit card clearing, senting request to shipping company, notifying customer, handle invoice from inventory and managing purchase order's status. </li>
+    <li>PurchaseOrderDAO: This class provides a uniform API  to to persist, find, update  data objects about purchase order.</li>
+    <li>InvoiceDAO: This class provides a uniform API  to to persist, find, update  data objects about Invoice.</li>
+    <li>PurchaseOrder: This is an entity class representing purchase order, including shipping address, purchased items and customer.</li>
+    <li>Invoice: This is an entity class representing an invoice for a purchase order.</li>
+</ul>
+<p><strong>Check Availability Module</strong></p>
+<ul>
+    <li>CigarAvailabilityDelegate: This class   periodically send request to inventory system to checking availability for each product, and cache the result in the class AvailabilityCache. When system need to check availability for a product, this class will return result from its cache memory.</li>
+    <li>AvailabilityCache: This class is a Hash Map as the  caching memory of availability information for each product in catalog.</li>
+</ul>
+<h3>&nbsp;</h3>
+<h3><strong>6.3. Resource Tier</strong></h3>
+<p>The resource tier handles the communication with  existing enterprise lnformation systems such as mail service, inventory system, credit card service of the Merchant Bank and shipping companies. This tier includes those modules which are in charge of integrating with existing application services, such as: <strong><em>Inventory Module</em></strong>, <strong><em>Bank Module</em></strong>, <em><strong>Shipping Module</strong></em> and <em><strong>Mail Module</strong></em>. <a href="image/class/Resource Tier Class Diagram.gif" target="_blank">Resource Tier Class Diagram</a> displays the classes for each module below.</p>
+<p><strong>Inventory Module</strong>:</p>
+<ul>
+    <li>InventoryDelegate: This class encapsulates communication detail to remote inventory system, snd exposes a coarse-grained API to other module.</li>
+    <li>InventorySender: This class low level API for creating and sending messages to remote inventory system through JMS.</li>
+    <li>InventoryMDB: This is a Message Driven Bean which is responsible for receiving message from remote inventory system and parsing each message to determine what should be done.</li>
+</ul>
+<p><strong>Bank Module</strong>:</p>
+<ul>
+    <li>BankDelegate: This class provide coarse-grained API for credit card transaction and encapsulate the communication detail of Web Service to the Merchant Bank.</li>
+</ul>
+<p><strong>Shipping Module</strong>:</p>
+<ul>
+    <li>IShippingDelegate: This is an interface which define abstract method to call service of shipping companies.</li>
+    <li>FreightMoverDelegate: This class implement the IShippingDelegate interface and acts as an delegate to  Freight Mover company. Since Freight Mover has a proprietary Java API, this class works with a JCA resource adapter to interact with Freight Mover.</li>
+    <li>InternationalShippingDelegate: This class implement the IShippingDelegate interface and acts as an delegate to  International Shipping company. Tthis class use Web Service to interact with  International Shipping.</li>
+</ul>
+<p><strong>Mail Module</strong>:</p>
+<ul>
+    <li>MailEJB: This  stateless session EJB  provides coarse-grained API for sending mail to customer's email address. It use different mail templates to generate mail content.</li>
+    <li>MailBuilder: This is a helper class for bulding mail contents with different tempalte.</li>
+</ul>
+<h2>&nbsp;</h2>
+<hr>
+<p>&nbsp;</p>
+<h2><strong>7.  <a name="Introduction">Sequence or Collaboration Diagrams</a></strong></h2>
+<p> The  following sequence diagrams are drawn in relation to use cases of this application. </p>
+<ul>
+    <li><a href="image/sequence/Create Profile Sequence Diagram.gif" target="_blank">Create Profile Sequence Diagram</a><a href="image/sequence/Login and Profile Sequence Diagram.gif" target="_blank"></a></li>
     <li><a href="image/sequence/Search Cigar Sequence Diagram.gif" target="_blank">Search Cigar Sequence Diagram</a></li>
+    <li><a href="image/sequence/Check Availability Sequence Diagram - I.gif" target="_blank">Check Availability Sequence Diagram - I</a></li>
+    <li><a href="image/sequence/Check Availability Sequence Diagram - II.gif" target="_blank">Check Availability Sequence Diagram - II</a></li>
     <li><a href="image/sequence/Add Cigar into Cart Sequence Diagram.gif" target="_blank">Add Cigar into Cart Sequence Diagram</a></li>
-    <li><a href="image/sequence/Check out Sequence Diagram.gif" target="_blank">Check out Sequence Diagram</a></li>
-    <li><a href="image/sequence/Check Availability Sequence Diagram.gif" target="_blank">Check Availability Sequence Diagram</a></li>
-    <li><a href="image/sequence/Order Fulfillment Work Flow.gif" target="_blank">Order Fulfillment Work Flow</a></li>
-    <li><a href="image/sequence/Recieve Purchase Order Sequence Diagram.gif" target="_blank">Recieve Purchase Order Sequence Diagram</a></li>
-    <li><a href="image/sequence/Receive Invoice Sequence Diagram.gif" target="_blank">Receive Invoice Sequence Diagram</a></li>
+    <li><a href="image/sequence/Check Out Sequence Diagram.gif" target="_blank">Check Out Sequence Diagram</a></li>
+    <li><a href="image/sequence/Purchase Order Fulfillment Sequence Diagram.gif" target="_blank">Purchase Order Fulfillment I</a></li>
+    <li><a href="image/sequence/Invoice Process Sequence Diagram.gif" target="_blank">Purchase Order Fulfillment II</a></li>
 </ul>
-<h2><strong>6.  <a name="Introduction">Class Diagrams</a></strong></h2>
-<ul>
-    <li><a href="image/class/Packages Diagram.gif" target="_blank">Package Diagram</a></li>
-    <li><a href="image/class/bigsmoke.ui.gif" target="_blank">Class diagram of the package bigsmoke.ui</a></li>
-    <li><a href="image/class/bigsmoke.controll.gif" target="_blank">Class diagram of the package bigsmoke.controll</a></li>
-    <li><a href="image/class/bigsmoke.businesslogic.gif">Class diagram of the package bigsmoke.businesslogic</a></li>
-    <li><a href="image/class/bigsmoke.opc.gif" target="_blank">Class diagram of the package bigsmoke.opc</a></li>
-    <li><a href="image/class/bigsmoke.delegate.gif" target="_blank">Class diagram of the package bigsmoke.delegate</a></li>
-    <li><a href="image/class/bigsmoke.model.gif" target="_blank">Class diagram of the package bigsmoke.model</a></li>
-</ul>
+<p>&nbsp;</p>
+<hr>
+<p>&nbsp;</p>
+<p></p>
 </body>
 </html>
